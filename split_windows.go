@@ -13,3 +13,8 @@ import "github.com/gentlemanautomaton/cmdline/cmdlinewindows"
 func Split(cl string) (args []string) {
 	return cmdlinewindows.Split(cl)
 }
+
+// SplitCommand is like Split, but the first argument is returned separately.
+func SplitCommand(cl string) (name string, args []string) {
+	return cmdlinewindows.SplitCommand(cl)
+}

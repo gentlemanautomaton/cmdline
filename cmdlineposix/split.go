@@ -1,5 +1,20 @@
 package cmdlineposix
 
+// SplitCommand is like Split, but the first argument is returned separately.
+func SplitCommand(cl string) (name string, args []string) {
+	a := Split(cl)
+	switch len(a) {
+	case 0:
+		return
+	case 1:
+		name = a[0]
+	default:
+		name = a[0]
+		args = a[1:]
+	}
+	return
+}
+
 // Split breaks the given command line into arguments. The arguments are split
 // according to posix shell parsing rules.
 //

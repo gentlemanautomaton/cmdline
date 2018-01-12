@@ -8,6 +8,33 @@ import (
 	"github.com/gentlemanautomaton/cmdline/cmdlinewindows"
 )
 
+var splitCommandTests = []struct {
+	Name         string
+	CL           string
+	ExpectedName string
+	ExpectedArgs []string
+}{
+	{"empty", ``, ``, nil},
+	{"args-0", `a`, `a`, nil},
+	{"args-1", `a b`, `a`, []string{`b`}},
+	{"args-2", `a b c`, `a`, []string{`b`, `c`}},
+	{"args-3", `a b c d`, `a`, []string{`b`, `c`, `d`}},
+}
+
+func TestSplitCommand(t *testing.T) {
+	for _, tc := range splitCommandTests {
+		tc := tc // capture range variable
+		t.Run(tc.Name, func(t *testing.T) {
+			name, args := cmdlinewindows.SplitCommand(tc.CL)
+			if name != tc.ExpectedName || !argsEqual(args, tc.ExpectedArgs) {
+				e := printArgs(tc.ExpectedArgs)
+				a := printArgs(args)
+				t.Errorf("input: %s   expected: %s %s   actual: %s %s", tc.CL, tc.ExpectedName, e, name, a)
+			}
+		})
+	}
+}
+
 var splitTests = []struct {
 	Name     string
 	CL       string
@@ -31,17 +58,17 @@ func TestSplit(t *testing.T) {
 	for _, tc := range splitTests {
 		tc := tc // capture range variable
 		t.Run(tc.Name, func(t *testing.T) {
-			actual := cmdlinewindows.Split(tc.CL)
-			if !testEq(actual, tc.Expected) {
-				e := strings.TrimPrefix(fmt.Sprintf("%#v", tc.Expected), "[]string")
-				a := strings.TrimPrefix(fmt.Sprintf("%#v", actual), "[]string")
+			args := cmdlinewindows.Split(tc.CL)
+			if !argsEqual(args, tc.Expected) {
+				e := printArgs(tc.Expected)
+				a := printArgs(args)
 				t.Errorf("input: %s   expected: %s   actual: %s", tc.CL, e, a)
 			}
 		})
 	}
 }
 
-func testEq(a []string, b []string) bool {
+func argsEqual(a []string, b []string) bool {
 	if a == nil && b == nil {
 		return true
 	}
@@ -61,4 +88,8 @@ func testEq(a []string, b []string) bool {
 	}
 
 	return true
+}
+
+func printArgs(args []string) string {
+	return strings.TrimPrefix(fmt.Sprintf("%#v", args), "[]string")
 }

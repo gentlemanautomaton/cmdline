@@ -1,5 +1,20 @@
 package cmdlinewindows
 
+// SplitCommand is like Split, but the first argument is returned separately.
+func SplitCommand(cl string) (name string, args []string) {
+	a := Split(cl)
+	switch len(a) {
+	case 0:
+		return
+	case 1:
+		name = a[0]
+	default:
+		name = a[0]
+		args = a[1:]
+	}
+	return
+}
+
 // Split breaks the given command line into arguments. The split is performed
 // according to the standard windows shell parsing rules as implemented by the
 // Microsoft C compiler.
