@@ -51,8 +51,7 @@ func Split(cl string) (args []string) {
 			b, slashes = writeSlashes(buffer, b, slashes)
 			if inQuote {
 				// A whitespace character within a quoted section
-				buffer[b] = runeValue
-				b++
+				b = write(buffer, b, runeValue)
 				break
 			}
 			if inArg {
