@@ -76,9 +76,7 @@ var splitTests = []struct {
 	{"trailing-newline", "abcd\n", []string{`abcd`}},
 	{"trailing-backslash", `abcd\`, []string{`abcd\`}},
 	{"continuing-backslash", "abcd\\\nef", []string{`abcdef`}},
-	//{"quoted-space", `"a b c" d e`, []string{`a b c`, `d`, `e`}},
-	//{"escaped-backslash-odd", `a\\\"b c d`, []string{`a\"b`, `c`, `d`}},
-	//{"escaped-backslash-even", `a\\\\"b c" d e`, []string{`a\\b c`, `d`, `e`}},
+	{"command-echo", `/bin/sh -c echo test`, []string{`/bin/sh`, `-c`, `echo`, `test`}},
 }
 
 func TestSplit(t *testing.T) {

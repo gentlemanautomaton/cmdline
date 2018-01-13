@@ -52,6 +52,7 @@ var splitTests = []struct {
 	{"uneven-quote-2", `a"b c d`, []string{`ab c d`}},
 	{"uneven-quote-3", `ab c d"`, []string{`ab`, `c`, `d`}},
 	{"uneven-quote-4", `a "b c d`, []string{`a`, `b c d`}},
+	{"command-echo", `cmd /C echo test`, []string{`cmd`, `/C`, `echo`, `test`}},
 }
 
 func TestSplit(t *testing.T) {
