@@ -15,6 +15,22 @@ func SplitCommand(cl string) (name string, args []string) {
 	return
 }
 
+// SplitLiteralCommand is like SplitLiteral, but the first argument is
+// returned separately.
+func SplitLiteralCommand(cl string) (name string, args []string) {
+	a := SplitLiteral(cl)
+	switch len(a) {
+	case 0:
+		return
+	case 1:
+		name = a[0]
+	default:
+		name = a[0]
+		args = a[1:]
+	}
+	return
+}
+
 // Split breaks the given command line into arguments. The split is performed
 // according to the standard windows shell parsing rules as implemented by the
 // Microsoft C compiler.
@@ -67,6 +83,60 @@ func Split(cl string) (args []string) {
 	}
 
 	b, _ = writeSlashes(buffer, b, slashes)
+	if inArg {
+		flushArg(&args, buffer, b)
+	}
+
+	return
+}
+
+// SplitLiteral is like Split, but it preserves all quotes and escape
+// characters within the returned arguments.
+func SplitLiteral(cl string) (args []string) {
+	var (
+		buffer  = make([]rune, len(cl)) // Buffer for current argument
+		inQuote bool                    // Are we in a section escaped by quotes?
+		inArg   bool                    // Have we read some portion of an argument?
+		slashes int                     // Current number of contiguous backslashes
+		b       int                     // Current position within buffer
+	)
+
+	for _, runeValue := range cl {
+		switch runeValue {
+		case '\\':
+			b = write(buffer, b, runeValue)
+			inArg = true
+			slashes++
+		case '"':
+			b = write(buffer, b, runeValue)
+			inArg = true
+			switch slashes % 2 {
+			case 0:
+				// A quote preceded by an even number of backslashes
+				inQuote = !inQuote
+			case 1:
+				// A quote preceded by an odd number of backslashes
+			}
+			slashes = 0
+		case ' ', '\t':
+			slashes = 0
+			if inQuote {
+				// A whitespace character within a quoted section
+				b = write(buffer, b, runeValue)
+				break
+			}
+			if inArg {
+				// A whitespace character terminating an argument
+				b = flushArg(&args, buffer, b)
+				inArg = false
+			}
+		default:
+			inArg = true
+			b = write(buffer, b, runeValue)
+			slashes = 0
+		}
+	}
+
 	if inArg {
 		flushArg(&args, buffer, b)
 	}
